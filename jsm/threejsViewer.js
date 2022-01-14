@@ -159,7 +159,7 @@ class threejsViewer {
 
                 else {
                     uniforms['u_sizeData'].image = {data: volume.sizeData};
-                    uniforms['u_sizeData'].needUpdate = true;
+                    uniforms['u_sizeData'].needsUpdate = true;
                 }
             }
            
