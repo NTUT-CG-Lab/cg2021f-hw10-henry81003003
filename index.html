@@ -353,13 +353,7 @@
 
             arg.renderType = 0
             let rawOutput, result;
-            function sleep(milliseconds) 
-            { 
-            var start = new Date().getTime(); 
-            while(1)
-                if ((new Date().getTime() - start) > milliseconds)
-                    break;
-            }
+
             // RAW文件讀取
             loadLocalRawFile('./raw/CTchest_64_64_64_uint8.raw', function(result) {
                 let width = 64, height = 64, depth = 64, bit = 8;
@@ -367,7 +361,6 @@
                 arrayBuf = new Uint8ClampedArray(result);
                 field = new ScaleField(width, height, depth, arrayBuf, arg.rgba);
                 controlView.updateVolumeData(field);
-                document.getElementById('modelTemp').innerText = arrayBuf;
             });
         }
         
