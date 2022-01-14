@@ -1,6 +1,7 @@
 import * as THREE from "./../threejs/build/three.module.js";
 import { VolumeRenderShader1 } from './VolumeShader.js'
 import { OrbitControls } from './../threejs/examples/jsm/controls/OrbitControls.js'
+import { ScaleField } from "./scaleField.js";
 
 class threejsViewer {
     constructor(domElement) {
@@ -21,7 +22,7 @@ class threejsViewer {
         let unit = 1
         let ratio = width / height * unit
         this.camera = new THREE.OrthographicCamera(-ratio, ratio, unit, - unit, 0.01, 100);
-        this.camera.position.set(8, 4, 8)
+        this.camera.position.set(8, 4, 50)
         this.scene.add(this.camera)
 
         // Light
@@ -87,20 +88,79 @@ class threejsViewer {
             }
         }
 
-        //由影像資料生成模型
         this.renderVolume = function (volume, colormap, arg) {
-
             const name = 'volume'
             let dims = volume.dims
-            let uniforms = null
             let mesh = this.scene.getObjectByName(name)
-            let scale = 1 / Math.max(...dims)
+            let uniforms;
+            // let scale = 1 / Math.max(...dims)
 
-            if (mesh == null) {
+            if (mesh == null || mesh == undefined) {
                 //first time initial
+
+                let geometry = new THREE.BoxGeometry(dims[0], dims[1], dims[2]);
+                geometry.translate(dims[0]/2, dims[1]/2, dims[2]/2);
+
+                let shader = VolumeRenderShader1;
+                const texture = new THREE.DataTexture3D(volume.alpha, dims[0], dims[1], dims[2]);
+                texture.format = THREE.LuminanceFormat;
+                texture.type = THREE.UnsignedByteType;
+                texture.minFilter = texture.maxFilter = THREE.LinearFilter;
+
+                let cmtexture = new THREE.DataTexture(colormap, 256, 1); // colormap
+
+                uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+                uniforms['u_data'].value = texture;
+                uniforms['u_size'].value.set(dims[0], dims[1], dims[2]);
+                uniforms['u_cmdata'].value = cmtexture;
+                uniforms['u_renderstyle'].value = 0;
+
+                uniforms['u_clim'].value.set(arg.cli_min, arg.cli_max);
+                uniforms['u_renderstyle'].value = arg.renderType;
+                uniforms['u_renderthreshold'].value = arg.isovalue;
+
+
+                let material = new THREE.ShaderMaterial({
+                    uniforms: uniforms,
+                    vertexShader: shader.vertexShader,
+                    fragmentShader: shader.fragmentShader, 
+                    side: THREE.BackSide
+                });
+
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.name = name;
+                mesh.position.set(0, 0, 0);
+                mesh.scale.set(0.1, 0.1, 0.1);
+
+                this.scene.add(mesh);
             }
             else {
                 // partial parameters update
+                // Later updates --> all adjusted parameters in material 
+                uniforms = mesh.material.uniforms
+                uniforms['u_data'].value.image = {data: volume.alpha, width: dims[0], height: dims[1], depth:dims[2]}
+                uniforms['u_data'].value.needsUpdate = true;
+                uniforms['u_cmdata'].value.image.data = colormap;
+                uniforms['u_cmdata'].value.needsUpdate = true;
+                uniforms['u_renderstyle'].value = arg.renderType;
+            }
+
+            if (volume.used) {
+                uniforms = mesh.material.uniforms;
+                if (uniforms['u_sizeEnable'] == 0) {
+                    // initial
+                    let texture = new THREE.DataTexture3D(volume.sizeData, dims[0], dims[1], dims[2]);
+                    texture.format = THREE.LuminanceFormat;
+                    texture.type = THREE.UnsignedByteType;
+
+                    uniforms['u_sizeEnable'].value = 1;
+                    uniforms['u_sizeData'].value = texture;
+                }
+
+                else {
+                    uniforms['u_sizeData'].image = {data: volume.sizeData};
+                    uniforms['u_sizeData'].needUpdate = true;
+                }
             }
            
             this.renderScene()

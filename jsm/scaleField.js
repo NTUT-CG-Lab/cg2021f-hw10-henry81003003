@@ -261,6 +261,8 @@ class Gaussian {
 			let tmp = new ScaleField(data.dims[0], data.dims[1], data.dims[2], new Uint8Array(data.alpha), data.rgba)
 			let index = 0;
 
+			// console.log(data.alpha)
+
 			for (let i = 0; i < data.dims[2]; i++)
 				for (let j = 0; j < data.dims[1]; j++)
 					for (let k = 0; k < data.dims[0]; k++)

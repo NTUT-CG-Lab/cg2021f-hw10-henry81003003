@@ -21322,7 +21322,6 @@ function WebGLState( gl, extensions, capabilities ) {
 	function texImage2D() {
 
 		try {
-
 			gl.texImage2D.apply( gl, arguments );
 
 		} catch ( error ) {
@@ -21336,7 +21335,7 @@ function WebGLState( gl, extensions, capabilities ) {
 	function texImage3D() {
 
 		try {
-
+			
 			gl.texImage3D.apply( gl, arguments );
 
 		} catch ( error ) {

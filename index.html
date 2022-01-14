@@ -142,6 +142,8 @@
                 <label><input type="radio" name="rtype" value="iso">ISO</label>
             </div>
             <div id="palette"></div>
+            <!-- <p id="modelTemp"></p> -->
+            <div id="modelTemp" style="display:none"></div>
         </div>
 
         <!--收合按鈕-->
@@ -151,7 +153,7 @@
     <script src="js/scoreoutputer.min.js"></script>
     <script>
         // 建構子 ScoreOutputer 接受一個字串，該字串為 csv 的檔案名稱
-        var so = new ScoreOutputer("109114514");
+        var so = new ScoreOutputer("109598018");
         so.installCSS(function () {
             // 安裝 bootstrap 的 css，如果在 html 上方引用 bootstrap 5.1.1 的話就不用使用 installCSS ，注意一定要 bootstrap css 5.1.1 版
             // installCSS 接收一個 callback 當作參數，作為成功安裝 bootstrap css 的回呼函式
@@ -165,7 +167,7 @@
             so.addChild("讀取文件並顯示資訊", 4, true);
             so.addChild("使用直接法渲染影像(MIPS)", 2, true);
             so.addChild("使用直接法渲染影像(ISO)", 2, true);
-            so.addChild("使用調色盤變更材質的colormap", 2, false);
+            so.addChild("使用調色盤變更材質的colormap", 2, true);
 
             //產生自評表，參數如下所示
             so.renderModal(
@@ -203,8 +205,10 @@
 
         const fileRegex = /(\w+)_(\d+)_(\d+)_(\d+)_(\w+)\.*/;
 
-        let field, controlView, modelView = null;
-        let arg = new colorSetting()
+        let field = null;
+        let controlView, modelView = null;
+        let arg = new colorSetting();
+        var arrayBuf = new Uint8ClampedArray([0]);
 
         let getColormap = function () {
             let color = new Uint8ClampedArray(256 * 4)
@@ -244,14 +248,16 @@
             let xhr = new XMLHttpRequest()
             xhr.responseType = 'arraybuffer'
             xhr.open('GET', path)
+            xhr.send()
+
             xhr.onreadystatechange = () => {
                 if (xhr.readyState == 4) {
                     if (xhr.status == 200) {
-                        onload(xhr.response)
+                        onload(xhr.response);
                     }
+                    document.getElementById('modelTemp').innerText = xhr.response
                 }
             }
-            xhr.send()
         }
 
         function bitConvertor(dataType, raw) {
@@ -325,35 +331,60 @@
 
             let elements = document.getElementsByName('settingForm')
 
+            // 執行 Sizebased transfer function
+            elements[3].addEventListener('click', (evt) => {
+                field.process(null, () => {
+                    modelView.renderVolume(field, getColormap(), arg);
+                });
+            });
+
             //MIPS or ISO
             document.querySelectorAll('input[name=rtype]').forEach((option) => {
-                option.addEventListener('click', (evt) => { })
+                option.addEventListener('click', (evt) => {
+                    if (option.value == "mips") {
+                        arg.renderType = 0; // 0 for MIPS, 1 for ISO
+                    }
+                    else if (option.value == "iso") {
+                        arg.renderType = 1; // 0 for MIPS, 1 for ISO
+                    }
+                    controlView.updateRGBA();
+                });
             })
 
             arg.renderType = 0
-
+            let rawOutput, result;
+            function sleep(milliseconds) 
+            { 
+            var start = new Date().getTime(); 
+            while(1)
+                if ((new Date().getTime() - start) > milliseconds)
+                    break;
+            }
             // RAW文件讀取
-            loadLocalRawFile('./raw/CTchest_64_64_64_uint8.raw', (result) => {
-                let width = 64, height = 64, depth = 64;
-                let bit = 8;
-                let data = Uint8ClampedArray(result);
+            loadLocalRawFile('./raw/CTchest_64_64_64_uint8.raw', function(result) {
+                let width = 64, height = 64, depth = 64, bit = 8;
                 
-                field = new ScaleField(width, height, depth, data, arg);
-
-                
-            })
+                arrayBuf = new Uint8ClampedArray(result);
+                field = new ScaleField(width, height, depth, arrayBuf, arg.rgba);
+                controlView.updateVolumeData(field);
+                document.getElementById('modelTemp').innerText = arrayBuf;
+            });
         }
-
+        
         window.onload = () => {
-            modelView = new threejsViewer(document.body)
-            controlView = new ControlView(document.getElementById('palette'), arg)
-
-            //當調色盤的參數變更時，觸發事件
+            modelView = new threejsViewer(document.body);
+            controlView = new ControlView(document.getElementById('palette'), arg);
+            
+            // 當調色盤的參數變更時，觸發事件
             controlView.addEventListener('change', () => {
-                modelView.renderVolume(field);
-            })
+                if (field == null) {
+                    return;
+                }
 
-            init()
+                modelView.renderVolume(field, getColormap(), arg);
+            });
+
+            init();
         }
     </script>
 

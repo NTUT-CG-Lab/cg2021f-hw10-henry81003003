@@ -2,7 +2,7 @@ import * as THREE from "./../threejs/build/three.module.js";
 import { InputModule } from './../jsm/inputModule.js'
 import { HSV, LittleTriangle } from './../jsm/hsv.js'
 
-// three.js UI±±¨î¤¸¥ó³]¸m
+// three.js UIï¿½ï¿½ï¿½î¤¸ï¿½ï¿½]ï¿½m
 class ControlView  extends THREE.EventDispatcher{
 
     constructor(domElement, arg) {
@@ -19,7 +19,7 @@ class ControlView  extends THREE.EventDispatcher{
         let inputInstance = InputModule.getInstance(arg)
         let changeEvent = {type:'change'}
 
-        //´è¬V¶¶§Ç
+        //ï¿½ï¿½Vï¿½ï¿½ï¿½ï¿½
         const UILayer = 1
         const contentLayer = 2
         const textLayer = 3
@@ -43,7 +43,7 @@ class ControlView  extends THREE.EventDispatcher{
             this.updateRGBA()
         }
 
-        // ¹ï­«½Æ¼Ò«¬ÀË¬d¥H¤Î¦A§Q¥Î
+        // ï¿½ï­«ï¿½Æ¼Ò«ï¿½ï¿½Ë¬dï¿½Hï¿½Î¦Aï¿½Qï¿½ï¿½
         let exist = function (name, mesh) {
             if (mesh instanceof THREE.Group) {
                 groupExist(name, mesh)
@@ -78,7 +78,7 @@ class ControlView  extends THREE.EventDispatcher{
 
         this.initUI = function () {
 
-            //ÀË¬d¦r«¬¬O§_¸ü¤J
+            //ï¿½Ë¬dï¿½rï¿½ï¿½ï¿½Oï¿½_ï¿½ï¿½ï¿½J
             if (font == null) {
                 loadFont(() => {
                     this.initUI()
@@ -124,7 +124,7 @@ class ControlView  extends THREE.EventDispatcher{
             this.dispatchEvent(changeEvent)
         }
 
-        // §ó·s±±¨î­±ªO¤Wªº°Ñ¼ÆÅã¥Ü
+        // ï¿½ï¿½sï¿½ï¿½ï¿½î­±ï¿½Oï¿½Wï¿½ï¿½ï¿½Ñ¼ï¿½ï¿½ï¿½ï¿½
         this.updateRGBA = function () {
             const picker = hsvInstance.drawTriangle(arg.clickH / 60)
             picker.renderOrder = UILayer
@@ -182,7 +182,7 @@ class ControlView  extends THREE.EventDispatcher{
             this.updateRGBA()
         }
 
-        // ¨ú±o·Æ¹«¦b«ü©wª«¥ó¤Wªº®y¼Ð¦ì¸m
+        // ï¿½ï¿½ï¿½oï¿½Æ¹ï¿½ï¿½bï¿½ï¿½ï¿½wï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½yï¿½Ð¦ï¿½m
         let getPosition = function (evt) {
             let canvas = evt.target
             let rect = canvas.getBoundingClientRect()
@@ -197,7 +197,7 @@ class ControlView  extends THREE.EventDispatcher{
             renderer.render(scene, camera)
         }
 
-        // ¸ü¤J¦r«¬ÀÉ¡A¨Ñthree.jsÃ¸»s¤å¦r
+        // ï¿½ï¿½ï¿½Jï¿½rï¿½ï¿½ï¿½É¡Aï¿½ï¿½three.jsÃ¸ï¿½sï¿½ï¿½r
         let loadFont = function (onload) {
             new THREE.FontLoader().load('./resources/fonts/gentilis_regular.typeface.json', (f) => {
                 font = f		            
@@ -206,7 +206,7 @@ class ControlView  extends THREE.EventDispatcher{
             })
         }
 
-        // ¹«¼Ð¥ªÁäÂIÀ»¨Æ¥ó
+        // ï¿½ï¿½ï¿½Ð¥ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½Æ¥ï¿½
         domElement.addEventListener('mousedown', (evt) => {
             evt.preventDefault()
 
@@ -219,9 +219,9 @@ class ControlView  extends THREE.EventDispatcher{
             this.updateRGBA()
         })
 
-        // ¹«¼Ð¥kÁäÂIÀ»¨Æ¥ó
+        // ï¿½ï¿½ï¿½Ð¥kï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½Æ¥ï¿½
         domElement.addEventListener('contextmenu', (evt) => {
-            evt.preventDefault()//«Ì½ª¥kÁä¿ï³æ
+            evt.preventDefault()//ï¿½Ì½ï¿½ï¿½kï¿½ï¿½ï¿½ï¿½
 
             if (evt.buttons != 0 || evt.button != 2) {
                 return
@@ -232,11 +232,11 @@ class ControlView  extends THREE.EventDispatcher{
             this.updateRGBA()
         })
 
-        // ¹«¼Ð²¾°Ê¨Æ¥ó
+        // ï¿½ï¿½ï¿½Ð²ï¿½ï¿½Ê¨Æ¥ï¿½
         domElement.addEventListener('mousemove', (evt) => {
             evt.preventDefault()
 
-            // «Ì½ª¥ªÁäÂIÀ»¥H¥~ªº¨Æ¥ó
+            // ï¿½Ì½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½Hï¿½~ï¿½ï¿½ï¿½Æ¥ï¿½
             if (evt.buttons != 1 || evt.button != 0) {
                 return
             }
@@ -264,7 +264,7 @@ class ControlView  extends THREE.EventDispatcher{
         let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
         scene.add(directionalLight)
 
-        // ¸ü¤JTF¤å¥ó(¦â¶¥³]¸m)¶i¦æªì©l³]¸m
+        // ï¿½ï¿½ï¿½JTFï¿½ï¿½ï¿½(ï¿½â¶¥ï¿½]ï¿½m)ï¿½iï¿½ï¿½ï¿½lï¿½]ï¿½m
         let request = new XMLHttpRequest()
         request.open('GET', "./resources/tf/test.tf", true)
         //request.responseType = 'blob'
